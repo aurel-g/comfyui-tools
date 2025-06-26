@@ -43,8 +43,8 @@ class AutoWriteNode:
             },
         }
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("file_paths",)
+    RETURN_TYPES = ("STRING", "STRING")
+    RETURN_NAMES = ("file_paths", "prefix")
 
     FUNCTION = "write"
 
@@ -53,10 +53,11 @@ class AutoWriteNode:
         images: List[np.ndarray],
         base_name: str,
         path_template: str | None = None,
-    ) -> Tuple[str]:
+    ) -> Tuple[str, str]:
         ctx = _load_ctx()
         template = path_template or DEFAULT_PATH_TEMPLATE
         saved_paths: list[str] = []
+        prefix_path: str | None = None
 
         for idx, img in enumerate(images):
             frame_num = idx  # Use index as frame if nothing else specified
@@ -66,14 +67,16 @@ class AutoWriteNode:
                 **ctx,
             )
             full_path = Path(file_path)
+            if prefix_path is None:
+                # strip the zero-padded frame and extension
+                prefix_path = str(full_path.parent / f"{base_name}_")
             full_path.parent.mkdir(parents=True, exist_ok=True)
 
             Image.fromarray(img).save(full_path)
             saved_paths.append(str(full_path))
             print(f"[AutoWrite] Saved frame {idx} -> {full_path}")
 
-        # ComfyUI expects a tuple
-        return ("\n".join(saved_paths),)
+        return ("\n".join(saved_paths), prefix_path or "")
 
 
 def _load_ctx() -> dict[str, str]:
