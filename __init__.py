@@ -11,12 +11,12 @@ RUNTIME_DIR.mkdir(exist_ok=True)
 from . import context_writer  # noqa: F401  # pylint: disable=unused-import
 
 # Import nodes
-from .write_node import AutoWriteNode
+from .write_node import AutoNameNode
 
 # ---- ComfyUI registration --------------------------------------------------
 
 NODE_CLASS_MAPPINGS = {
-    "AutoWrite": AutoWriteNode,
+    "AutoWrite": AutoNameNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
